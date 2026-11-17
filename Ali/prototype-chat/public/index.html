@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Projet IL - Chat</title>
+</head>
+<body>
+  <h1>Chat en temps réel</h1>
+
+  <div id="connexion">
+    <input id="pseudo" placeholder="Ton pseudo">
+    <button id="rejoindre">Rejoindre</button>
+  </div>
+
+  <div id="chat" style="display: none;">
+    <h2>Salon TEST01</h2>
+
+    <ul id="messages"></ul>
+
+    <input id="message" placeholder="Ton message">
+    <button id="envoyer">Envoyer</button>
+  </div>
+
+  <p id="erreur" style="color: red;"></p>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/chat.js"></script>
+</body>
+</html>
