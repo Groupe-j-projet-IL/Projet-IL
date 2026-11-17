@@ -60,6 +60,9 @@ class Salon {
   estVide() {
     return this.membres.length === 0;
   }
+  estCreateur(id) {
+    return this.createur !== null && this.createur.id === id;
+  }
 }
 
 module.exports = Salon;
