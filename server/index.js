@@ -1,26 +1,21 @@
 const path = require('path');
 const http = require('http');
-const crypto = require('crypto');
 const express = require('express');
 const { Server } = require('socket.io');
-const Salon = require('./Salon');
+const GestionnaireSalons = require('./GestionnaireSalons');
 
-const CARACTERES = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; 
-const LONGUEUR_CODE = 6;
-const LIMITE_ENVOIS = 5;    
-const FENETRE_MS = 2000;     
+const LIMITE_ENVOIS = 5;   // max 5 envois...
+const FENETRE_MS = 2000;   // ...en 2 secondes
 const DOSSIER_PUBLIC = path.join(__dirname, '..', 'public');
 
 class Serveur {
   constructor(port = 3000) {
     this.port = port;
-    this.salons = new Map();         
-    this.envoisRecents = new Map();  
+    this.gestionnaire = new GestionnaireSalons();  // c'est lui qui gère les salons
+    this.envoisRecents = new Map();                // anti-spam : id -> dates des envois
     this.http = null;
     this.io = null;
   }
-
-
 
   demarrer() {
     const app = express();
@@ -44,49 +39,16 @@ class Serveur {
 
   arreter() {
     if (this.io) {
-      this.io.close();  
+      this.io.close();
     }
-    this.salons.clear();
+    this.gestionnaire = new GestionnaireSalons();
     this.envoisRecents.clear();
   }
-
- 
-  creerSalon(createur) {
-    const code = this.genererCode();
-    const salon = new Salon(code, `/salon/${code}`, createur);  
-    this.salons.set(code, salon);
-    this.ecrireJournal(`salon ${code} créé par ${createur.pseudo}`);
-    return salon;
-  }
-
-  trouverSalon(code) {
-    const codeNettoye = String(code ?? '').trim().toUpperCase();
-    return this.salons.get(codeNettoye) ?? null;
-  }
-
-  supprimerSalon(code) {
-    if (this.salons.delete(code)) {
-      this.ecrireJournal(`salon ${code} supprimé`);
-    }
-  }
-
-  genererCode() {
-    let code;
-    do {
-      code = '';
-      for (let i = 0; i < LONGUEUR_CODE; i++) {
-        code += CARACTERES[crypto.randomInt(CARACTERES.length)];
-      }
-    } while (this.salons.has(code));
-    return code;
-  }
-
-
 
   depasseLimite(id) {
     const maintenant = new Date();
     const recents = (this.envoisRecents.get(id) ?? [])
-      .filter(d => maintenant - d < FENETRE_MS); 
+      .filter(d => maintenant - d < FENETRE_MS);
     recents.push(maintenant);
     this.envoisRecents.set(id, recents);
     return recents.length > LIMITE_ENVOIS;
@@ -98,7 +60,6 @@ class Serveur {
 }
 
 module.exports = Serveur;
-
 
 if (require.main === module) {
   new Serveur(Number(process.env.PORT) || 3000).demarrer();
