@@ -1,0 +1,24 @@
+{
+  "name": "projet-il",
+  "version": "1.0.0",
+  "description": "Plateforme web de visionnage collaboratif de vidéos YouTube avec synchronisation et chat en temps réel.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Groupe-j-projet-IL/Projet-IL.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Groupe-j-projet-IL/Projet-IL/issues"
+  },
+  "homepage": "https://github.com/Groupe-j-projet-IL/Projet-IL#readme",
+  "dependencies": {
+    "express": "^5.3.0",
+    "socket.io": "^4.8.4"
+  }
+}
