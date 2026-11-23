@@ -25,8 +25,7 @@ class GestionnaireSalons {
   creerSalon(idUtilisateur, pseudo) {
     const createur = new Utilisateur(idUtilisateur, pseudo);
     const code = this.genererCode();
-    const salon = new Salon(code, `/salon/${code}`, createur);  // lance une erreur si pseudo invalide
-    this.salons.set(code, salon);
+    const salon = new Salon(code, `/?code=${code}`, createur);
     return salon;
   }
 

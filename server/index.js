@@ -1,15 +1,17 @@
 const path = require('path');
 const http = require('http');
 const express = require('express');
-const { Server } = require('socket.io');
+const socketio = require('socket.io');
 const GestionnaireSalons = require('./GestionnaireSalons');
 
-const LIMITE_ENVOIS = 5;   // max 5 envois...
+
+const PORT = 3000;
+const LIMITE_ENVOIS = 5;   // anti-spam : 5 envois maximum...
 const FENETRE_MS = 2000;   // ...en 2 secondes
 const DOSSIER_PUBLIC = path.join(__dirname, '..', 'public');
 
 class Serveur {
-  constructor(port = 3000) {
+  constructor(port) {
     this.port = port;
     this.gestionnaire = new GestionnaireSalons();
     this.envoisRecents = new Map();
@@ -20,31 +22,11 @@ class Serveur {
   demarrer() {
     const app = express();
     app.use(express.static(DOSSIER_PUBLIC));
-    app.get('/salon/:code', (req, res) => {
-      res.sendFile(path.join(DOSSIER_PUBLIC, 'index.html'));
-    });
+    
 
     this.http = http.createServer(app);
-    this.io = new Server(this.http);
-
-    this.io.on('connection', (socket) => {
-      this.ecrireJournal(`connexion ${socket.id}`);
-
-      // Événement 1 : créer un salon
-      socket.on('creerSalon', (donnees) => {
-        try {
-          const salon = this.gestionnaire.creerSalon(socket.id, donnees?.pseudo);
-          socket.join(salon.code);        // le navigateur entre dans le groupe du salon
-          socket.data.code = salon.code;  // on retient dans quel salon il est
-          socket.emit('salon', { code: salon.code, lien: salon.lien });
-          this.ecrireJournal(`salon ${salon.code} créé par ${donnees.pseudo}`);
-        } catch (e) {
-          socket.emit('erreur', e.message);  // ex : PSEUDO_INVALIDE
-        }
-      });
-
-      socket.on('disconnect', () => this.ecrireJournal(`déconnexion ${socket.id}`));
-    });
+    this.io = new socketio.Server(this.http);
+    this.io.on('connection', (socket) => this.gererConnexion(socket));
 
     this.http.listen(this.port, () => {
       this.ecrireJournal(`serveur lancé sur http://localhost:${this.port}`);
@@ -57,6 +39,27 @@ class Serveur {
     }
     this.gestionnaire = new GestionnaireSalons();
     this.envoisRecents.clear();
+  }
+
+  // ===== Tâche 2 : gestion des salons (les commandes) =====
+
+  gererConnexion(socket) {
+    this.ecrireJournal(`connexion ${socket.id}`);
+
+    socket.on('creerSalon', (donnees) => this.traiterCreerSalon(socket, donnees));
+    socket.on('disconnect', () => this.ecrireJournal(`déconnexion ${socket.id}`));
+  }
+
+  traiterCreerSalon(socket, donnees) {
+    try {
+      const salon = this.gestionnaire.creerSalon(socket.id, donnees?.pseudo);
+      socket.join(salon.code);
+      socket.data.code = salon.code;
+      socket.emit('salon', { code: salon.code, lien: salon.lien });
+      this.ecrireJournal(`salon ${salon.code} créé par ${salon.createur.pseudo}`);
+    } catch (erreur) {
+      socket.emit('erreur', erreur.message);
+    }
   }
 
   depasseLimite(id) {
@@ -75,6 +78,8 @@ class Serveur {
 
 module.exports = Serveur;
 
+// Lancé avec "npm start" → on ouvre la cuisine
 if (require.main === module) {
-  new Serveur(Number(process.env.PORT) || 3000).demarrer();
+  const serveur = new Serveur(PORT);
+  serveur.demarrer();
 }
