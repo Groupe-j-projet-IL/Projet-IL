@@ -3,7 +3,7 @@ class Lecteur {
         this.player = null;
         this.videoId = null;
     }
-}
+
 
 chargerVideo(videoId) {
     this.videoId = videoId;
@@ -20,8 +20,9 @@ initialiser() {
 
         events: {
             onReady: () => {
-                console.log("Lecteur YouTube prêt !");
-            }
+            console.log("Lecteur YouTube prêt !");
+            this.chargerVideo("M7lc1UVf-VE");
+}
         }
     });
 }
@@ -41,4 +42,14 @@ definirPosition(secondes) {
     if (this.player !== null && secondes >= 0) {
         this.player.seekTo(secondes, true);
     }
+}
+positionActuelle() {
+    if (this.player !== null) {
+        return this.player.getCurrentTime();
+    }
+
+    return 0;
+}
+
+
 }
