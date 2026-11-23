@@ -9,6 +9,7 @@ const configurerChat = require("./chat");
 const app = express();
 const serveur = http.createServer(app);
 const io = new Server(serveur);
+const historiqueMessages = [];
 
 app.use(express.static(path.join(__dirname, "../public")));
 
@@ -29,10 +30,11 @@ io.on("connection", (socket) => {
     socket.data.pseudo = pseudo.trim();
 
     socket.emit("salon_rejoint", "TEST01");
+    socket.emit("historique_messages", historiqueMessages);
   });
 
   // Activer les événements du chat
-  configurerChat(io, socket);
+configurerChat(io, socket, historiqueMessages);
 
   socket.on("disconnect", () => {
     console.log("Utilisateur déconnecté :", socket.id);

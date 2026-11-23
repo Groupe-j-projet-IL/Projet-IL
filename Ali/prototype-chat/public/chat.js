@@ -20,14 +20,30 @@ document.getElementById("envoyer").addEventListener("click", () => {
   messageInput.value = "";
 });
 
-socket.on("nouveau_message", (message) => {
+
+function afficherMessage(message) {
   const element = document.createElement("li");
 
   element.textContent =
     message.auteur + " : " + message.texte;
 
   messages.appendChild(element);
+}
+
+// Afficher les nouveaux messages
+socket.on("nouveau_message", (message) => {
+  afficherMessage(message);
 });
+
+// Afficher l'historique quand on rejoint un salon
+socket.on("historique_messages", (historique) => {
+  messages.innerHTML = "";
+
+  historique.forEach((message) => {
+    afficherMessage(message);
+  });
+});
+
 
 socket.on("erreur", (message) => {
   document.getElementById("erreur").textContent = message;
