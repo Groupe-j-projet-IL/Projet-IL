@@ -9,7 +9,7 @@ const PORT = 3000;
 const LIMITE_ENVOIS = 5;   // anti-spam : 5 envois maximum...
 const FENETRE_MS = 2000;   // ...en 2 secondes
 const DOSSIER_PUBLIC = path.join(__dirname, '..', 'public');
-
+ 
 class Serveur {
   constructor(port) {
     this.port = port;
@@ -41,7 +41,7 @@ class Serveur {
     this.envoisRecents.clear();
   }
 
-  // ===== Tâche 2 : gestion des salons (les commandes) =====
+  
 
   gererConnexion(socket) {
     this.ecrireJournal(`connexion ${socket.id}`);
@@ -78,7 +78,7 @@ class Serveur {
 
 module.exports = Serveur;
 
-// Lancé avec "npm start" → on ouvre la cuisine
+
 if (require.main === module) {
   const serveur = new Serveur(PORT);
   serveur.demarrer();
