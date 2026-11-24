@@ -74,4 +74,27 @@ class Playlist {
   }
 }
 
-module.exports = { VideoYouTube, Playlist };
+function configurerPlaylist(io, socket, gestionnaire) {
+
+  socket.on("ajouter_playlist", (lien) => {
+    const salon = gestionnaire.trouverSalon(socket.data.code);
+
+    if (!salon) {
+      socket.emit("erreur", "Vous devez rejoindre un salon");
+      return;
+    }
+
+    const video = new VideoYouTube(lien);
+
+    if (!video.estValide()) {
+      socket.emit("erreur", "Lien YouTube invalide");
+      return;
+    }
+
+    salon.playlist.ajouter(video);
+    io.to(salon.code).emit("playlist", salon.playlist.videos);
+  });
+
+}
+
+module.exports = { VideoYouTube, Playlist, configurerPlaylist };
