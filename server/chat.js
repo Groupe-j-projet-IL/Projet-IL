@@ -1,5 +1,6 @@
+const Message = require("./Message");
 
-function configurerChat(io, socket, historiqueMessages) {
+function configurerChat(io, socket, gestionnaire) {
   let envoisRecents = [];
 
   socket.on("envoyer_message", (texte) => {
@@ -23,10 +24,10 @@ function configurerChat(io, socket, historiqueMessages) {
     }
 
     // Vérifier que l'utilisateur est dans un salon
-    const codeSalon = socket.data.codeSalon;
+    const salon = gestionnaire.trouverSalon(socket.data.code);
     const pseudo = socket.data.pseudo;
 
-    if (!codeSalon || !pseudo) {
+    if (!salon || !pseudo) {
       socket.emit("erreur", "Vous devez rejoindre un salon");
       return;
     }
@@ -49,20 +50,18 @@ function configurerChat(io, socket, historiqueMessages) {
     envoisRecents.push(maintenant);
 
     // Construire le message
-    const message = {
-      auteur: pseudo,
-      texte: texte.trim(),
-      heure: new Date().toISOString(),
-      type: "CHAT"
-    };
-    historiqueMessages.push(message);
+    const message = new Message(pseudo, texte.trim());
+
+    // Ranger le message dans l'historique du salon
+    salon.messages.push(message);
+
     // Limiter l'historique aux 50 derniers messages
-if (historiqueMessages.length > 50) {
-  historiqueMessages.shift();
-}
+    if (salon.messages.length > 50) {
+      salon.messages.shift();
+    }
 
     // Envoyer le message aux membres du salon
-    io.to(codeSalon).emit("nouveau_message", message);
+    io.to(salon.code).emit("nouveau_message", message);
 
   });
 

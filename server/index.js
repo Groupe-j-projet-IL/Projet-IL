@@ -4,7 +4,7 @@ const express = require('express');
 const socketio = require('socket.io');
 const GestionnaireSalons = require('./GestionnaireSalons');
 
-
+const configurerChat = require('./chat');
 const PORT = 3000;
 const DOSSIER_PUBLIC = path.join(__dirname, '..', 'public');
  
@@ -43,6 +43,7 @@ class Serveur {
     this.ecrireJournal(`connexion ${socket.id}`);
 
     socket.on('creerSalon', (donnees) => this.traiterCreerSalon(socket, donnees));
+    configurerChat(this.io, socket, this.gestionnaire);
     socket.on('disconnect', () => this.ecrireJournal(`déconnexion ${socket.id}`));
   }
 
