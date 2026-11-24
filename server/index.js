@@ -6,15 +6,12 @@ const GestionnaireSalons = require('./GestionnaireSalons');
 
 
 const PORT = 3000;
-const LIMITE_ENVOIS = 5;   // anti-spam : 5 envois maximum...
-const FENETRE_MS = 2000;   // ...en 2 secondes
 const DOSSIER_PUBLIC = path.join(__dirname, '..', 'public');
  
 class Serveur {
   constructor(port) {
     this.port = port;
     this.gestionnaire = new GestionnaireSalons();
-    this.envoisRecents = new Map();
     this.http = null;
     this.io = null;
   }
@@ -38,7 +35,6 @@ class Serveur {
       this.io.close();
     }
     this.gestionnaire = new GestionnaireSalons();
-    this.envoisRecents.clear();
   }
 
   
@@ -60,15 +56,6 @@ class Serveur {
     } catch (erreur) {
       socket.emit('erreur', erreur.message);
     }
-  }
-
-  depasseLimite(id) {
-    const maintenant = new Date();
-    const recents = (this.envoisRecents.get(id) ?? [])
-      .filter(d => maintenant - d < FENETRE_MS);
-    recents.push(maintenant);
-    this.envoisRecents.set(id, recents);
-    return recents.length > LIMITE_ENVOIS;
   }
 
   ecrireJournal(evenement) {
