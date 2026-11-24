@@ -31,4 +31,47 @@ class VideoYouTube {
   }
 }
 
-module.exports = { VideoYouTube };
+class Playlist {
+  constructor() {
+    this.videos = [];       // liste ordonnée de VideoYouTube
+    this.indexCourant = 0;  // position de la vidéo en cours dans la liste
+  }
+
+  // UC8 : tout utilisateur ajoute une vidéo à la fin
+  ajouter(v) {
+    this.videos.push(v);
+  }
+
+  // UC9 : le créateur supprime la vidéo n° index
+  supprimer(index) {
+    if (index < 0 || index >= this.videos.length) {
+      return;
+    }
+    this.videos.splice(index, 1);
+    if (index < this.indexCourant) {
+      this.indexCourant--;   // la vidéo en cours a reculé d'une place
+    }
+  }
+
+  // UC9 : le créateur déplace la vidéo n° debut à la place n° fin
+  deplacer(debut, fin) {
+    if (debut < 0 || debut >= this.videos.length || fin < 0 || fin >= this.videos.length) {
+      return;
+    }
+    const enCours = this.videos[this.indexCourant];
+    const [video] = this.videos.splice(debut, 1);
+    this.videos.splice(fin, 0, video);
+    this.indexCourant = this.videos.indexOf(enCours);  // on retrouve la vidéo en cours
+  }
+
+  // UC8 : à la fin d'une vidéo, on passe à la suivante (null s'il n'y en a plus)
+  videoSuivante() {
+    if (this.indexCourant + 1 >= this.videos.length) {
+      return null;
+    }
+    this.indexCourant++;
+    return this.videos[this.indexCourant];
+  }
+}
+
+module.exports = { VideoYouTube, Playlist };
