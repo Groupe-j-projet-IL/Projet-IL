@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test du lecteur YouTube - Amnay</title>
+</head>
+
+<body>
+    <h1>Test du lecteur YouTube</h1>
+
+    <!-- Emplacement de la vidéo -->
+    <div id="youtube-player"></div>
+
+    <br>
+
+    <!-- Boutons de contrôle -->
+    <button onclick="lecteur.demarrer()">Lecture</button>
+    <button onclick="lecteur.pause()">Pause</button>
+    <button onclick="lecteur.definirPosition(60)">Aller à 1 minute</button>
+
+    <!-- Notre classe Lecteur -->
+    <script src="lecteur.js"></script>
+
+    <!-- API officielle YouTube -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        const lecteur = new Lecteur();
+
+        // YouTube appelle cette fonction quand son API est chargée
+        function onYouTubeIframeAPIReady() {
+            lecteur.initialiser();
+        }
+    </script>
+</body>
+</html>
