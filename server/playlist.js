@@ -94,7 +94,30 @@ function configurerPlaylist(io, socket, gestionnaire) {
     salon.playlist.ajouter(video);
     io.to(salon.code).emit("playlist", salon.playlist.videos);
   });
+socket.on("modifier_playlist", (donnees) => {
+    const salon = gestionnaire.trouverSalon(socket.data.code);
 
+    if (!salon) {
+      socket.emit("erreur", "Vous devez rejoindre un salon");
+      return;
+    }
+        if (!salon.estCreateur(socket.id)) {
+      socket.emit("erreur", "Action réservée au créateur du salon");
+      return;
+    }
+
+     if (donnees.action === "supprimer") {
+      salon.playlist.supprimer(donnees.index);
+    } else if (donnees.action === "deplacer") {
+      salon.playlist.deplacer(donnees.debut, donnees.fin);
+    } else {
+      socket.emit("erreur", "Action inconnue");
+      return;
+    }
+
+    io.to(salon.code).emit("playlist", salon.playlist.videos);
+
+  });
 }
 
 module.exports = { VideoYouTube, Playlist, configurerPlaylist };
