@@ -1,0 +1,7 @@
+<h1>Projet IL - page de test</h1>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  socket.on('salon',  (d) => console.log('SALON :', d));
+  socket.on('erreur', (e) => console.log('ERREUR :', e));
+</script>

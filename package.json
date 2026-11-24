@@ -2,9 +2,9 @@
   "name": "projet-il",
   "version": "1.0.0",
   "description": "Plateforme web de visionnage collaboratif de vidéos YouTube avec synchronisation et chat en temps réel.",
-  "main": "src/server.js",
+  "main": "server/index.js",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node server/index.js"
   },
   "repository": {
     "type": "git",
