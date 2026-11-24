@@ -108,7 +108,7 @@ socket.on("modifier_playlist", (donnees) => {
 
      if (donnees.action === "supprimer") {
       salon.playlist.supprimer(donnees.index);
-    } else if (donnees.action === "deplacer") {
+    } else if (donnees?.action === "deplacer") {
       salon.playlist.deplacer(donnees.debut, donnees.fin);
     } else {
       socket.emit("erreur", "Action inconnue");
